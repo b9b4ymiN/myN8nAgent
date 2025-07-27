@@ -1,0 +1,52 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    # ถ้าคุณใช้การ์ดจอ NVIDIA บน Windows และต้องการให้ Ollama ใช้ GPU
+    # ให้เพิ่มบรรทัด devices: และปรับ path ให้ถูกต้อง
+    # ตัวอย่างสำหรับ Windows/Linux:
+    # devices:
+    #   - /dev/nvidia0:/dev/nvidia0
+    #   - /dev/nvidiactl:/dev/nvidiactl
+    #   - /dev/nvidia-uvm:/dev/nvidia-uvm
+    #   - /dev/nvidia-modeset:/dev/nvidia-modeset
+    # สำหรับ Docker Desktop บน Windows ที่เปิด WSL2 จะใช้แบบนี้
+    # ถ้า Ollama ไม่เห็น GPU ให้ลองเช็ค driver และดูเอกสารของ Ollama/Docker อีกที
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    ports:
+      - "127.0.0.1:11434:11434" # เปิด Port 11434 บน localhost ให้เข้าถึง Ollama ได้
+    volumes:
+      - ollama_data:/root/.ollama # เก็บโมเดลของ Ollama ไว้ใน Docker Volume
+    container_name: ollama
+
+  n8n:
+    image: n8nio/n8n:latest # ใช้เวอร์ชั่นล่าสุดของ n8n
+    ports:
+      - "5678:5678" # เปิด Port 5678 สำหรับเข้าถึง n8n UI
+    environment:
+      # ตั้งค่า N8N ให้ไม่ต้องมีระบบ Sign-in
+      # คำเตือน: การตั้งค่านี้จะทำให้ทุกคนที่เข้าถึง URL/IP นี้ สามารถใช้งาน n8n ได้โดยตรง
+      - N8N_BASIC_AUTH_ACTIVE=false
+      - N8N_EDITOR_BASE_URL=http://localhost:5678/ # อาจจะต้องปรับเป็น IP/Domain ถ้า deploy บน Server จริง
+      - WEBHOOK_URL=http://localhost:5678/ # เหมือนกัน
+      - N8N_METRICS_ENABLED=false # ปิด Metrics ถ้าไม่ต้องการ
+      - N8N_LOG_LEVEL=info
+      # ถ้า Ollama และ n8n อยู่ใน Docker Network เดียวกัน
+      # n8n สามารถเรียก Ollama ได้ด้วยชื่อ service: http://ollama:11434
+      # ถ้าอยากให้ n8n เรียก Ollama ที่รันบน localhost (เช่น ถ้า Ollama รันนอก Docker)
+      # ให้ปรับเป็น http://host.docker.internal:11434 (สำหรับ Docker Desktop)
+      # หรือ http://127.0.0.1:11434 (ถ้ามีการ expose port ของ host ไปให้ container)
+    volumes:
+      - n8n_data:/home/node/.n8n # เก็บข้อมูล Workflow และ Credential ของ n8n
+    container_name: n8n
+    depends_on:
+      - ollama # n8n จะรอให้ ollama เริ่มทำงานก่อน
+
+volumes:
+  ollama_data:
+  n8n_data:

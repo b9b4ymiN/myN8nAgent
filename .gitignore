@@ -1,0 +1,13 @@
+# Docker Volumes
+ollama_data/
+n8n_data/
+
+# n8n specific files (if using embedded db)
+.n8n/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
