@@ -1,0 +1,181 @@
+{
+  "name": "Temp Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "0c58848c-981f-4e01-a169-9114da400a4e",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -500,
+        -40
+      ],
+      "webhookId": "ebdeba3f-6b4f-49f3-ba0a-8253dd226161",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -280,
+        -40
+      ],
+      "id": "a1224c68-39ff-4ce3-9a8a-9c977be2ba3c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -380,
+        180
+      ],
+      "id": "73f5e51b-6239-43d0-889a-461c0d7a0b92",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "jWM68wC1CX62S006",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -240,
+        220
+      ],
+      "id": "0076e629-3d43-48b2-ba2a-7ecf434c6313",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "toolDescription": "ใช้งาน api นี้เพื่อหาข้อมูล อุณหภูมิปัจจุปัน\nใส่ค่าเมืองแทนที่ q= ที่ลิงค์",
+        "url": "=https://api.openweathermap.org/data/2.5/weather?q=Bangkok&appid=a3cf6a2cdd2b709a553ca78303039ba5&units=metric",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        200
+      ],
+      "id": "ee6f1a27-2e8b-4ba5-a61d-56da6e82c109",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "toolDescription": "A tool to get the current weather for a specific city.\nUse this tool when the user asks for weather information, like temperature, conditions, or forecasts for a particular city.\nThe tool requires a 'city' name as an input parameter.\nExample queries: \"What's the weather in London?\", \"How hot is it in Bangkok?\", \"Current conditions in New York.\"",
+        "url": "https://api.openweathermap.org/data/2.5/weather",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            },
+            {
+              "name": "appid",
+              "value": "a3cf6a2cdd2b709a553ca78303039ba5"
+            },
+            {
+              "name": "units",
+              "value": "metric"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -20,
+        180
+      ],
+      "id": "5cd5b48f-099e-4c4b-bbe6-4b1788a89e77",
+      "name": "Get weather"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Get weather": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a82b3f8a-49cd-4659-a973-1829e846fa28",
+  "meta": {
+    "instanceId": "cdf1e81fd64ffb5d86ceb16d5c429fbf65bb81259befea79746ce3cc2ceb8fba"
+  },
+  "id": "aMuvc5nLn5dB48xe",
+  "tags": []
+}
