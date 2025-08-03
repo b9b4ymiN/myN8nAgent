@@ -17,7 +17,7 @@ services:
           devices:
             - driver: nvidia
               count: all
-              capabilities: [gpu]
+              capabilities: [ gpu ]
     ports:
       - "127.0.0.1:11434:11434" # เปิด Port 11434 บน localhost ให้เข้าถึง Ollama ได้
     volumes:
@@ -25,12 +25,15 @@ services:
     container_name: ollama
 
   n8n:
-    image: n8nio/n8n:latest # ใช้เวอร์ชั่นล่าสุดของ n8n
+    build:
+      context: .
+      dockerfile: Dockerfile.n8n
     ports:
       - "5678:5678" # เปิด Port 5678 สำหรับเข้าถึง n8n UI
     environment:
       # ตั้งค่า N8N ให้ไม่ต้องมีระบบ Sign-in
       # คำเตือน: การตั้งค่านี้จะทำให้ทุกคนที่เข้าถึง URL/IP นี้ สามารถใช้งาน n8n ได้โดยตรง
+      - TZ=Asia/Bangkok
       - N8N_BASIC_AUTH_ACTIVE=false
       - N8N_EDITOR_BASE_URL=http://localhost:5678/ # อาจจะต้องปรับเป็น IP/Domain ถ้า deploy บน Server จริง
       - WEBHOOK_URL=http://localhost:5678/ # เหมือนกัน

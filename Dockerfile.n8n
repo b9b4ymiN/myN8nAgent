@@ -1,0 +1,25 @@
+FROM node:20-slim
+
+# ติดตั้ง tools พื้นฐาน
+RUN apt-get update && apt-get install -y \
+  curl \
+  wget \
+  jq \
+  git \
+  unzip \
+  nano \
+  python3 \
+  make \
+  gcc \
+  g++ \
+  && apt-get clean
+
+# ติดตั้ง n8n (เวอร์ชันล่าสุด หรือระบุเวอร์ชันได้ เช่น n8n@1.43.1)
+RUN npm install -g n8n cheerio axios puppeteer xml2js node-fetch
+
+USER node
+WORKDIR /home/node
+
+EXPOSE 5678
+
+CMD ["n8n"]
